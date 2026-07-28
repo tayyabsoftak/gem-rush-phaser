@@ -1,0 +1,22 @@
+{
+  "name": "gem-rush",
+  "version": "1.0.0",
+  "description": "Gem Rush — Phaser 3 technical assessment game",
+  "type": "module",
+  "scripts": {
+    "encode-assets": "node scripts/encode-assets.js",
+    "predev": "npm run encode-assets",
+    "dev": "vite",
+    "prebuild": "npm run encode-assets",
+    "build": "vite build",
+    "size-check": "node scripts/size-check.js",
+    "postbuild": "npm run size-check"
+  },
+  "dependencies": {
+    "phaser": "^3.80.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "vite-plugin-singlefile": "^2.0.2"
+  }
+}
