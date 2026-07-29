@@ -9,6 +9,7 @@ export default class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    this.isTransitioning = false;
     const { width, height } = this.scale;
 
     this.cameras.main.fadeIn(500, 0, 0, 0);
@@ -42,7 +43,10 @@ export default class TitleScene extends Phaser.Scene {
     });
     subtitle.setOrigin(0.5);
 
-    new Button(this, width / 2, height * 0.72, 'Play', () => {
+    const playButton = new Button(this, width / 2, height * 0.72, 'Play', () => {
+      if (this.isTransitioning) return;
+      this.isTransitioning = true;
+      playButton.hitZone.disableInteractive();
       this.cameras.main.fadeOut(500, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start('GameScene');

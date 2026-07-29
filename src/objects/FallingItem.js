@@ -40,7 +40,8 @@ export class FallingItem extends Phaser.GameObjects.Container {
   preUpdate(time, delta) {
     if (!this.active) return;
 
-    this.y += (this.fallSpeed * delta) / 1000;
+    const dt = Math.min(delta, 33);
+    this.y += (this.fallSpeed * dt) / 1000;
 
     if (this.y > this.scene.scale.height + GameConfig.itemSize) {
       this.onMissed();
@@ -49,6 +50,7 @@ export class FallingItem extends Phaser.GameObjects.Container {
 
   onCaught(basket) {
     this.isCaught = true;
+    this.setActive(false);
     this.stopIdleAnimation();
 
     if (basket) {

@@ -64,7 +64,7 @@ export class Spawner {
     const isBomb = Math.random() < GameConfig.bombChance;
     const group = isBomb ? this.bombGroup : this.gemGroup;
 
-    let item = group.getFirstDead(false);
+    let item = group.getChildren().find(child => !child.active && !child.isCaught);
     if (!item) {
       if (group.getLength() >= GameConfig.poolSize) return;
       item = isBomb
