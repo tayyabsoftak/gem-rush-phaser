@@ -6,6 +6,7 @@ import { Gem } from '../objects/Gem.js';
 import { ScorePopup } from '../objects/ScorePopup.js';
 import { SaveState } from '../systems/SaveState.js';
 import { Spawner } from '../systems/Spawner.js';
+import { AmbientBackground } from '../objects/AmbientBackground.js';
 import { HUD } from '../ui/HUD.js';
 
 export default class GameScene extends Phaser.Scene {
@@ -20,7 +21,11 @@ export default class GameScene extends Phaser.Scene {
     this.gameOver = false;
     this.isDragging = false;
 
-    this.createBackground();
+    this.isDragging = false;
+
+    this.cameras.main.fadeIn(500, 0, 0, 0);
+
+    new AmbientBackground(this);
 
     this.basket = new Basket(this, this.scale.width / 2, this.scale.height * 0.88);
 
@@ -78,12 +83,7 @@ export default class GameScene extends Phaser.Scene {
     this.tweens.killAll();
   }
 
-  createBackground() {
-    const g = this.add.graphics();
-    g.fillGradientStyle(0x1a1a2e, 0x1a1a2e, 0x16213e, 0x16213e, 1);
-    g.fillRect(0, 0, this.scale.width, this.scale.height);
-    g.setDepth(-1);
-  }
+  // Removed createBackground in favor of AmbientBackground
 
   setupInput() {
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -206,6 +206,7 @@ export default class GameScene extends Phaser.Scene {
     bomb.onCaught();
     this.lives -= 1;
     this.hud.updateLives(this.lives);
+    this.hud.punchLives();
 
     if (this.cache.audio.exists('bomb')) {
       this.sound.play('bomb', { volume: 0.6 });
@@ -237,7 +238,8 @@ export default class GameScene extends Phaser.Scene {
       this.sound.play('lose', { volume: 0.5 });
     }
 
-    this.time.delayedCall(600, () => {
+    this.cameras.main.fadeOut(600, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('EndScene', { won, score: this.score });
     });
   }

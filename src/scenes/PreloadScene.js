@@ -28,8 +28,11 @@ export default class PreloadScene extends Phaser.Scene {
 
     this.load.on('progress', (value) => {
       progressBar.clear();
-      progressBar.fillStyle(0x00e5ff, 1);
-      progressBar.fillRoundedRect(cx - barWidth / 2, cy - barHeight / 2, barWidth * value, barHeight, 6);
+      // Fix for the 2 dots issue: only draw when there's enough width for the rounded corners
+      if (value > 0.05) {
+        progressBar.fillStyle(0x00f0ff, 1);
+        progressBar.fillRoundedRect(cx - barWidth / 2, cy - barHeight / 2, barWidth * value, barHeight, 6);
+      }
     });
 
     this.load.on('complete', () => {

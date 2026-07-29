@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { GameConfig } from '../config/GameConfig.js';
 
 export class Button extends Phaser.GameObjects.Container {
   constructor(scene, x, y, label, onClick, options = {}) {
@@ -8,8 +9,8 @@ export class Button extends Phaser.GameObjects.Container {
       width = 280,
       height = 72,
       fontSize = 28,
-      fillColor = 0x4a90d9,
-      hoverColor = 0x5aa0e9,
+      fillColor = 0xff007f,
+      hoverColor = 0xff3399,
       textColor = '#ffffff',
     } = options;
 
@@ -29,36 +30,64 @@ export class Button extends Phaser.GameObjects.Container {
       fontSize: `${fontSize}px`,
       color: textColor,
       fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3,
     });
     this.label.setOrigin(0.5);
     this.label.disableInteractive();
     this.add(this.label);
 
-    // Zone origin defaults to 0.5/0.5 — matches background drawn around (0,0)
     this.hitZone = scene.add.zone(0, 0, width, height);
     this.hitZone.setInteractive({ useHandCursor: true });
     this.add(this.hitZone);
 
     this.hitZone.on('pointerover', () => {
       this.drawBackground(hoverColor);
+      scene.tweens.killTweensOf(this);
+      scene.tweens.add({
+        targets: this,
+        scale: 1.05,
+        duration: 100,
+        ease: 'Quad.easeOut'
+      });
     });
 
     this.hitZone.on('pointerout', () => {
       this.drawBackground(fillColor);
       this.isPressed = false;
-      this.setScale(1);
+      scene.tweens.killTweensOf(this);
+      scene.tweens.add({
+        targets: this,
+        scale: 1,
+        duration: 100,
+        ease: 'Quad.easeOut'
+      });
     });
 
     this.hitZone.on('pointerdown', () => {
       this.isPressed = true;
-      this.setScale(0.96);
+      scene.tweens.killTweensOf(this);
+      scene.tweens.add({
+        targets: this,
+        scale: 0.95,
+        duration: 50,
+        ease: 'Quad.easeOut'
+      });
     });
 
     this.hitZone.on('pointerup', () => {
       if (!this.isPressed) return;
       this.isPressed = false;
-      this.setScale(1);
-      if (onClick) onClick();
+      scene.tweens.killTweensOf(this);
+      scene.tweens.add({
+        targets: this,
+        scale: 1.05,
+        duration: 100,
+        ease: 'Quad.easeOut',
+        onComplete: () => {
+          if (onClick) onClick();
+        }
+      });
     });
 
     scene.add.existing(this);
@@ -69,9 +98,17 @@ export class Button extends Phaser.GameObjects.Container {
     const w = this.buttonWidth;
     const h = this.buttonHeight;
     this.bg.clear();
+    
+    // Outer glow
+    this.bg.fillStyle(color, 0.4);
+    this.bg.fillRoundedRect(-w / 2 - 4, -h / 2 - 4, w + 8, h + 8, 18);
+    
+    // Main body
     this.bg.fillStyle(color, 1);
     this.bg.fillRoundedRect(-w / 2, -h / 2, w, h, 14);
-    this.bg.lineStyle(3, 0xffffff, 0.3);
+    
+    // Inner border
+    this.bg.lineStyle(3, 0xffffff, 0.8);
     this.bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 14);
   }
 }

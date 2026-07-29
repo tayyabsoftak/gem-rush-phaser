@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GameConfig } from '../config/GameConfig.js';
 import { Button } from '../ui/Button.js';
+import { AmbientBackground } from '../objects/AmbientBackground.js';
 
 export default class EndScene extends Phaser.Scene {
   constructor() {
@@ -15,8 +16,14 @@ export default class EndScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    const bgColor = this.won ? 0x0d3320 : 0x331018;
-    this.add.rectangle(width / 2, height / 2, width, height, bgColor);
+    this.cameras.main.fadeIn(500, 0, 0, 0);
+
+    new AmbientBackground(this);
+    
+    // Add extra tint for End Scene based on win/lose
+    const overlayColor = this.won ? 0x00f0ff : 0xff2a55;
+    const overlay = this.add.rectangle(width / 2, height / 2, width, height, overlayColor, 0.15);
+    overlay.setBlendMode(Phaser.BlendModes.ADD);
 
     const titleColor = this.won ? GameConfig.colors.winText : GameConfig.colors.loseText;
     const titleText = this.won ? 'YOU WIN!' : 'GAME OVER';
@@ -27,9 +34,43 @@ export default class EndScene extends Phaser.Scene {
       color: titleColor,
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 5,
+      strokeThickness: 8,
+      shadow: { offsetX: 0, offsetY: 0, color: titleColor, blur: 20, stroke: true, fill: true }
     });
     title.setOrigin(0.5);
+    
+    if (this.won) {
+      // Confetti effect
+      for (let i = 0; i < 40; i++) {
+        const conf = this.add.rectangle(width / 2, height * 0.3, 10, 20, Math.random() > 0.5 ? 0x00f0ff : 0xff007f);
+        this.tweens.add({
+          targets: conf,
+          x: width / 2 + Phaser.Math.Between(-200, 200),
+          y: height + 50,
+          angle: Phaser.Math.Between(180, 720),
+          duration: Phaser.Math.Between(1500, 3000),
+          ease: 'Cubic.easeOut'
+        });
+      }
+      
+      this.tweens.add({
+        targets: title,
+        scale: { from: 0.5, to: 1 },
+        duration: 800,
+        ease: 'Bounce.easeOut'
+      });
+    } else {
+      // Glitch/Wobble effect
+      this.tweens.add({
+        targets: title,
+        x: { from: title.x - 5, to: title.x + 5 },
+        duration: 50,
+        yoyo: true,
+        repeat: 10,
+        ease: 'Linear',
+        onComplete: () => title.setX(width / 2)
+      });
+    }
 
     const message = this.won
       ? 'You caught enough gems in time!'
@@ -38,7 +79,7 @@ export default class EndScene extends Phaser.Scene {
     const msg = this.add.text(width / 2, height * 0.42, message, {
       fontFamily: 'Arial, sans-serif',
       fontSize: `${Math.round(width * 0.04)}px`,
-      color: '#cccccc',
+      color: '#e0f7fa',
       align: 'center',
       wordWrap: { width: width * 0.8 },
     });
@@ -49,14 +90,26 @@ export default class EndScene extends Phaser.Scene {
       fontSize: `${Math.round(width * 0.055)}px`,
       color: '#ffffff',
       fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3
     });
     scoreLabel.setOrigin(0.5);
 
     new Button(this, width / 2, height * 0.68, 'Play Again', () => {
-      this.scene.start('GameScene');
+      this.cameras.main.fadeOut(500, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('GameScene');
+      });
     }, {
-      fillColor: this.won ? 0x2ecc71 : 0xe74c3c,
-      hoverColor: this.won ? 0x3ddc81 : 0xf75c4c,
+      fillColor: this.won ? 0x00f0ff : 0xff2a55,
+      hoverColor: this.won ? 0x00ffff : 0xff4a75,
+      textColor: this.won ? '#000000' : '#ffffff'
     });
+
+    this.events.once('shutdown', this.handleShutdown, this);
+  }
+
+  handleShutdown() {
+    this.tweens.killAll();
   }
 }

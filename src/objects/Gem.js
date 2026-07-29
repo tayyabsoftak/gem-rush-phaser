@@ -33,6 +33,35 @@ export class Gem extends FallingItem {
     g.fillCircle(-size * 0.1, -size * 0.12, size * 0.08);
   }
 
+  startIdleAnimation() {
+    this.scene.tweens.add({
+      targets: this.graphics,
+      angle: 360,
+      duration: 3000,
+      repeat: -1,
+      ease: 'Linear'
+    });
+    
+    this.scene.tweens.add({
+      targets: this.graphics,
+      scale: 1.15,
+      duration: 800,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+  }
+
+  stopIdleAnimation() {
+    if (this.scene && this.graphics) {
+      this.scene.tweens.killTweensOf(this.graphics);
+    }
+    if (this.graphics) {
+      this.graphics.setAngle(0);
+      this.graphics.setScale(1);
+    }
+  }
+
   onCaught() {
     this.despawn();
   }

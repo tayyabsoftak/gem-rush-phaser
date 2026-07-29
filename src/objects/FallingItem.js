@@ -18,6 +18,7 @@ export class FallingItem extends Phaser.GameObjects.Container {
     this.fallSpeed = fallSpeed;
     this.setVisible(true);
     this.setActive(true);
+    this.startIdleAnimation();
     return this;
   }
 
@@ -25,7 +26,11 @@ export class FallingItem extends Phaser.GameObjects.Container {
     this.setVisible(false);
     this.setActive(false);
     this.setPosition(-100, -100);
+    this.stopIdleAnimation();
   }
+
+  startIdleAnimation() {}
+  stopIdleAnimation() {}
 
   preUpdate(time, delta) {
     if (!this.active) return;
