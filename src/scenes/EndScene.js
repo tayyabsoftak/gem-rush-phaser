@@ -101,9 +101,9 @@ export default class EndScene extends Phaser.Scene {
         this.scene.start('GameScene');
       });
     }, {
-      fillColor: this.won ? 0x00f0ff : 0xff2a55,
-      hoverColor: this.won ? 0x00ffff : 0xff4a75,
-      textColor: this.won ? '#000000' : '#ffffff'
+      fillColor: this.won ? 0x8a2be2 : 0xff2a55, // Violet for win, Red for lose
+      hoverColor: this.won ? 0xb026ff : 0xff4a75,
+      textColor: this.won ? '#00f0ff' : '#ffffff' // Cyan text for win, White for lose
     });
 
     this.events.once('shutdown', this.handleShutdown, this);

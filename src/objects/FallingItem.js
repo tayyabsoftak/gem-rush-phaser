@@ -14,6 +14,10 @@ export class FallingItem extends Phaser.GameObjects.Container {
   }
 
   spawn(x, fallSpeed) {
+    this.isCaught = false;
+    this.scene.tweens.killTweensOf(this);
+    this.setScale(1);
+    this.setAlpha(1);
     this.setPosition(x, -GameConfig.itemSize);
     this.fallSpeed = fallSpeed;
     this.setVisible(true);
@@ -25,6 +29,7 @@ export class FallingItem extends Phaser.GameObjects.Container {
   despawn() {
     this.setVisible(false);
     this.setActive(false);
+    this.isCaught = false;
     this.setPosition(-100, -100);
     this.stopIdleAnimation();
   }
@@ -39,6 +44,30 @@ export class FallingItem extends Phaser.GameObjects.Container {
 
     if (this.y > this.scene.scale.height + GameConfig.itemSize) {
       this.onMissed();
+    }
+  }
+
+  onCaught(basket) {
+    this.isCaught = true;
+    this.stopIdleAnimation();
+
+    if (basket) {
+      this.scene.tweens.add({
+        targets: this,
+        x: basket.x,
+        y: basket.y,
+        scale: 0,
+        alpha: 0.5,
+        duration: 150,
+        ease: 'Cubic.easeIn',
+        onComplete: () => {
+          this.despawn();
+          this.setScale(1);
+          this.setAlpha(1);
+        }
+      });
+    } else {
+      this.despawn();
     }
   }
 

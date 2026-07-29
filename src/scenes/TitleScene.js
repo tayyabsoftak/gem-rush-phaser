@@ -43,25 +43,17 @@ export default class TitleScene extends Phaser.Scene {
     subtitle.setOrigin(0.5);
 
     new Button(this, width / 2, height * 0.72, 'Play', () => {
-      this.unlockAudio();
       this.cameras.main.fadeOut(500, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start('GameScene');
       });
     });
 
-    this.input.once('pointerdown', () => this.unlockAudio());
     this.events.once('shutdown', this.handleShutdown, this);
   }
 
   handleShutdown() {
     this.tweens.killAll();
     this.input.off('pointerdown');
-  }
-
-  unlockAudio() {
-    if (this.sound.locked) {
-      this.sound.unlock();
-    }
   }
 }

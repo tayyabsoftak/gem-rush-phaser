@@ -17,10 +17,11 @@ export class ScorePopup extends Phaser.GameObjects.Container {
     this.add(label);
 
     const particles = scene.add.graphics();
+    const numericColor = Phaser.Display.Color.HexStringToColor(color).color;
     for (let i = 0; i < 8; i++) {
       const angle = (Math.PI * 2 * i) / 8;
       const dist = 20 + Math.random() * 20;
-      particles.fillStyle(GameConfig.colors.gem, 0.8);
+      particles.fillStyle(numericColor, 0.8);
       particles.fillCircle(Math.cos(angle) * dist, Math.sin(angle) * dist, 4 + Math.random() * 3);
     }
     this.add(particles);
@@ -40,6 +41,10 @@ export class ScorePopup extends Phaser.GameObjects.Container {
   }
 
   static spawnGem(scene, x, y) {
-    return new ScorePopup(scene, x, y, '+1', '#00e5ff');
+    return new ScorePopup(scene, x, y, '+1', GameConfig.colors.titleText); // Using cyan text
+  }
+
+  static spawnBomb(scene, x, y) {
+    return new ScorePopup(scene, x, y, '-1', '#ff2a55'); // Using red text
   }
 }

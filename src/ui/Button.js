@@ -73,20 +73,17 @@ export class Button extends Phaser.GameObjects.Container {
         duration: 50,
         ease: 'Quad.easeOut'
       });
+      if (onClick) onClick();
     });
 
     this.hitZone.on('pointerup', () => {
-      if (!this.isPressed) return;
       this.isPressed = false;
       scene.tweens.killTweensOf(this);
       scene.tweens.add({
         targets: this,
         scale: 1.05,
         duration: 100,
-        ease: 'Quad.easeOut',
-        onComplete: () => {
-          if (onClick) onClick();
-        }
+        ease: 'Quad.easeOut'
       });
     });
 

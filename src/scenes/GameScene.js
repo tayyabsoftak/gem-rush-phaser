@@ -159,13 +159,23 @@ export default class GameScene extends Phaser.Scene {
 
     this.spawner.update(delta);
 
+    let velocityX = 0;
     if (this.cursors.left.isDown) {
       this.basket.x -= 8;
       this.basket.setPositionX(this.basket.x);
+      velocityX = -8;
     } else if (this.cursors.right.isDown) {
       this.basket.x += 8;
       this.basket.setPositionX(this.basket.x);
+      velocityX = 8;
+    } else if (this.isDragging) {
+      velocityX = this.basket.x - (this.prevBasketX ?? this.basket.x);
     }
+    this.prevBasketX = this.basket.x;
+
+    if (velocityX < -2) this.basket.setTilt(-1);
+    else if (velocityX > 2) this.basket.setTilt(1);
+    else this.basket.setTilt(0);
 
     this.checkCollisions();
   }
@@ -175,7 +185,7 @@ export default class GameScene extends Phaser.Scene {
 
     for (const group of groups) {
       group.getChildren().forEach((item) => {
-        if (!item.active) return;
+        if (!item.active || item.isCaught) return;
         if (item.overlapsBasket(this.basket)) {
           if (item.itemType === 'gem') {
             this.catchGem(item);
@@ -188,7 +198,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   catchGem(gem) {
-    gem.onCaught();
+    gem.onCaught(this.basket);
+    this.basket.flash();
     this.score += 1;
     this.hud.updateScore(this.score, GameConfig.targetScore);
     ScorePopup.spawnGem(this, gem.x, gem.y);
@@ -203,10 +214,11 @@ export default class GameScene extends Phaser.Scene {
   }
 
   catchBomb(bomb) {
-    bomb.onCaught();
+    bomb.onCaught(this.basket);
     this.lives -= 1;
     this.hud.updateLives(this.lives);
     this.hud.punchLives();
+    ScorePopup.spawnBomb(this, bomb.x, bomb.y);
 
     if (this.cache.audio.exists('bomb')) {
       this.sound.play('bomb', { volume: 0.6 });

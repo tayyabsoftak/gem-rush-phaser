@@ -17,20 +17,31 @@ export class Gem extends FallingItem {
     const g = this.graphics;
     g.clear();
 
-    const points = [];
     const sides = 6;
-    for (let i = 0; i < sides; i++) {
-      const angle = (Math.PI * 2 * i) / sides - Math.PI / 2;
-      points.push(new Phaser.Math.Vector2(Math.cos(angle) * size * 0.4, Math.sin(angle) * size * 0.4));
-    }
+    const getPoints = (scale) => {
+      const pts = [];
+      for (let i = 0; i < sides; i++) {
+        const angle = (Math.PI * 2 * i) / sides - Math.PI / 2;
+        pts.push(new Phaser.Math.Vector2(Math.cos(angle) * size * scale, Math.sin(angle) * size * scale));
+      }
+      return pts;
+    };
 
+    // Outer glow / refraction layer
+    g.fillStyle(GameConfig.colors.gem, 0.4);
+    g.fillPoints(getPoints(0.55), true);
+
+    // Main body
     g.fillStyle(GameConfig.colors.gem, 1);
-    g.fillPoints(points, true);
-    g.lineStyle(2, GameConfig.colors.gemHighlight, 0.8);
-    g.strokePoints(points, true);
+    g.fillPoints(getPoints(0.4), true);
+    
+    // Core highlight
+    g.fillStyle(0xe0ffff, 0.9);
+    g.fillPoints(getPoints(0.2), true);
 
-    g.fillStyle(0xffffff, 0.35);
-    g.fillCircle(-size * 0.1, -size * 0.12, size * 0.08);
+    // Specular highlight
+    g.fillStyle(0xffffff, 0.8);
+    g.fillCircle(-size * 0.1, -size * 0.12, size * 0.05);
   }
 
   startIdleAnimation() {
@@ -62,11 +73,5 @@ export class Gem extends FallingItem {
     }
   }
 
-  onCaught() {
-    this.despawn();
-  }
-
-  onMissed() {
-    this.despawn();
-  }
+  // onCaught and onMissed are handled by FallingItem
 }
