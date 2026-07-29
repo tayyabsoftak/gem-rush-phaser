@@ -34,14 +34,17 @@ Open `dist/index.html` in a browser after building — it runs fully offline wit
 └── package.json
 ```
 
-## Assumptions, Trade-offs & Future Improvements
+## Project Overview & Technical Decisions
 
-- **Graphics over bitmaps:** Gems, bombs, basket, and particles are drawn with Phaser `Graphics` to keep the single-file build well under the 5 MB limit. Only short procedural SFX WAV files are embedded.
-- **Object pooling:** Gems and bombs reuse instances via Phaser Groups rather than create/destroy each spawn.
-- **Instruction persistence:** First-visit hint text is stored in `localStorage` via `SaveState` so returning players aren't interrupted.
-- **Audio:** Short tone-based WAV files are generated at build time if none exist in `raw/`. Mobile audio unlock happens on first tap in Title/Game scenes.
-- **file:// delivery:** Production builds use Rollup `iife` output (not ES modules) so `dist/index.html` works when opened directly from disk, as required by playable-ad networks.
-- **With more time:** Add sprite-based art from Kenney.nl, background music with careful compression, difficulty presets, touch-haptic feedback, and automated Playwright E2E tests for the full win/lose loop.
+This project was built as a mobile-first Phaser 3 arcade game for a technical assessment. The implementation focuses on clean architecture, performance, and meeting the assessment requirements while keeping the production build self-contained and lightweight.
+
+* **Graphics:** All game visuals (basket, gems, bombs, particles, and UI elements) are procedurally drawn using Phaser `Graphics`, eliminating the need for external image assets and helping keep the build size under the required limit.
+* **Performance:** Falling objects are managed using object pooling through Phaser Groups to minimize object creation and garbage collection during gameplay.
+* **Configuration:** Gameplay values such as spawn rates, movement speed, timers, and scoring are centralized in `GameConfig.js` for easier maintenance and tuning.
+* **State Management:** Player progress, including whether the instructional overlay has already been shown, is persisted using `localStorage` through the `SaveState` system.
+* **Audio:** Sound effects are procedurally generated and embedded into the final build, allowing the game to run completely offline without external assets.
+* **Offline Compatibility:** The production build is bundled into a single `dist/index.html` file using Rollup's IIFE output, enabling the game to be opened directly from the file system (`file://`) without requiring a web server.
+* **Architecture:** The codebase is organized into scenes, game objects, UI components, and systems to keep responsibilities separated and the project easy to maintain.
 
 ## Asset Attribution
 
