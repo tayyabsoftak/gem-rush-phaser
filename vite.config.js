@@ -35,8 +35,4 @@ export default defineConfig({
       },
     },
   },
-  server: {
-    port: 5173,
-    allowedHosts: ['wolf-shadiness-operating.ngrok-free.dev'],
-  },
 });
