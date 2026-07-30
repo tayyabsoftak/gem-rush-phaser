@@ -15,22 +15,42 @@ Open `dist/index.html` in a browser after building — it runs fully offline wit
 
 ## Project Structure
 
-├── src/
-│ ├── main.js # Phaser game bootstrap
-│ ├── config/GameConfig.js # All tunable game values
-│ ├── scenes/ # Boot, Preload, Title, Game, End
-│ ├── objects/ # Basket, FallingItem, Gem, Bomb, ScorePopup
-│ ├── ui/ # Button, HUD
-│ ├── systems/ # Spawner, SaveState
-│ └── assets/
-│ ├── raw/ # Source audio/image files
-│ └── encoded/ # Generated base64 manifest
+gem-rush-phaser/
+├── index.html                  # HTML entry point
+├── package.json                # Dependencies & npm scripts
+├── vite.config.js              # Vite build config (single-file output)
 ├── scripts/
-│ ├── encode-assets.js # Builds assetManifest.js from raw/
-│ └── size-check.js # Validates dist/index.html size
-├── dist/index.html # Single-file production deliverable
-├── vite.config.js
-└── package.json
+│   ├── encode-assets.js        # Converts raw audio to base64 manifest
+│   └── size-check.js           # Validates final build stays under 5MB
+├── src/
+│   ├── main.js                 # Phaser game bootstrap & scene registration
+│   ├── config/
+│   │   └── GameConfig.js       # Centralized tunable values (speeds, colors, scoring)
+│   ├── assets/
+│   │   ├── raw/                # Source .wav audio files
+│   │   └── encoded/
+│   │       └── assetManifest.js # Generated base64 audio manifest
+│   ├── scenes/
+│   │   ├── BootScene.js        # Initializes SaveState, transitions to Preload
+│   │   ├── PreloadScene.js     # Loads base64 assets into Phaser cache
+│   │   ├── TitleScene.js       # Title screen, high score, Play button
+│   │   ├── GameScene.js        # Core gameplay loop, scoring, collisions
+│   │   └── EndScene.js         # Win/loss screen, Play Again button
+│   ├── objects/
+│   │   ├── AmbientBackground.js # Procedural animated background
+│   │   ├── Basket.js            # Player-controlled basket
+│   │   ├── FallingItem.js       # Base class for falling objects
+│   │   ├── Gem.js                # Collectible item (extends FallingItem)
+│   │   ├── Bomb.js               # Hazard item (extends FallingItem)
+│   │   └── ScorePopup.js         # Floating +1/-1 score feedback
+│   ├── systems/
+│   │   ├── Spawner.js           # Object pooling & timed item spawning
+│   │   └── SaveState.js         # High score persistence via localStorage
+│   └── ui/
+│       ├── Button.js            # Reusable interactive button component
+│       └── HUD.js                # Score, lives, and timer display
+└── dist/
+    └── index.html               # Final single-file production build
 
 
 ## Controls
