@@ -11,6 +11,7 @@ export default class EndScene extends Phaser.Scene {
   init(data) {
     this.won = data.won ?? false;
     this.finalScore = data.score ?? 0;
+    this.reason = data.reason ?? 'lives';
   }
 
   create() {
@@ -20,7 +21,7 @@ export default class EndScene extends Phaser.Scene {
     this.cameras.main.fadeIn(500, 0, 0, 0);
 
     new AmbientBackground(this);
-    
+
     // Add extra tint for End Scene based on win/lose
     const overlayColor = this.won ? 0x00f0ff : 0xff2a55;
     const overlay = this.add.rectangle(width / 2, height / 2, width, height, overlayColor, 0.15);
@@ -39,7 +40,7 @@ export default class EndScene extends Phaser.Scene {
       shadow: { offsetX: 0, offsetY: 0, color: titleColor, blur: 20, stroke: true, fill: true }
     });
     title.setOrigin(0.5);
-    
+
     if (this.won) {
       // Confetti effect
       for (let i = 0; i < 40; i++) {
@@ -53,7 +54,7 @@ export default class EndScene extends Phaser.Scene {
           ease: 'Cubic.easeOut'
         });
       }
-      
+
       this.tweens.add({
         targets: title,
         scale: { from: 0.5, to: 1 },
@@ -73,9 +74,20 @@ export default class EndScene extends Phaser.Scene {
       });
     }
 
-    const message = this.won
-      ? 'You caught enough gems in time!'
-      : 'Time ran out or you lost all lives.';
+    let message = '';
+    switch (this.reason) {
+      case 'win':
+        message = 'You caught enough gems in time!';
+        break;
+      case 'lives':
+        message = 'Bombed out!';
+        break;
+      case 'timeout':
+        message = "Time's up! You didn't catch enough gems.";
+        break;
+      default:
+        message = 'Game Over';
+    }
 
     const msg = this.add.text(width / 2, height * 0.42, message, {
       fontFamily: 'Arial, sans-serif',

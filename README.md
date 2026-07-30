@@ -15,24 +15,30 @@ Open `dist/index.html` in a browser after building — it runs fully offline wit
 
 ## Project Structure
 
-```
 ├── src/
-│   ├── main.js                 # Phaser game bootstrap
-│   ├── config/GameConfig.js    # All tunable game values
-│   ├── scenes/                 # Boot, Preload, Title, Game, End
-│   ├── objects/                # Basket, FallingItem, Gem, Bomb, ScorePopup
-│   ├── ui/                     # Button, HUD
-│   ├── systems/                # Spawner, SaveState
-│   └── assets/
-│       ├── raw/                # Source audio/image files
-│       └── encoded/            # Generated base64 manifest
+│ ├── main.js # Phaser game bootstrap
+│ ├── config/GameConfig.js # All tunable game values
+│ ├── scenes/ # Boot, Preload, Title, Game, End
+│ ├── objects/ # Basket, FallingItem, Gem, Bomb, ScorePopup
+│ ├── ui/ # Button, HUD
+│ ├── systems/ # Spawner, SaveState
+│ └── assets/
+│ ├── raw/ # Source audio/image files
+│ └── encoded/ # Generated base64 manifest
 ├── scripts/
-│   ├── encode-assets.js        # Builds assetManifest.js from raw/
-│   └── size-check.js           # Validates dist/index.html size
-├── dist/index.html             # Single-file production deliverable
+│ ├── encode-assets.js # Builds assetManifest.js from raw/
+│ └── size-check.js # Validates dist/index.html size
+├── dist/index.html # Single-file production deliverable
 ├── vite.config.js
 └── package.json
-```
+
+
+## Controls
+
+- **Desktop:** Move the mouse left/right, or use the Left/Right arrow keys, to move the basket.
+- **Mobile/Touch:** Drag your finger left/right anywhere on the screen to move the basket.
+- Catch gems (+1 point) and avoid bombs (-1 life). Reach 20 gems within 45 seconds to win.
+- A first-time tutorial overlay explains these controls in-game, and is only shown once (tracked via `localStorage`).
 
 ## Project Overview & Technical Decisions
 
@@ -45,6 +51,23 @@ This project was built as a mobile-first Phaser 3 arcade game for a technical as
 * **Audio:** Sound effects are procedurally generated and embedded into the final build, allowing the game to run completely offline without external assets.
 * **Offline Compatibility:** The production build is bundled into a single `dist/index.html` file using Rollup's IIFE output, enabling the game to be opened directly from the file system (`file://`) without requiring a web server.
 * **Architecture:** The codebase is organized into scenes, game objects, UI components, and systems to keep responsibilities separated and the project easy to maintain.
+
+## Assumptions, Trade-offs & Future Improvements
+
+**Scaling approach:** The game uses `Phaser.Scale.FIT` with a fixed 720x1280 logical resolution rather than `Phaser.Scale.RESIZE`. This guarantees consistent gameplay balance (basket speed, spawn positions, and difficulty tuning) across all devices, at the cost of letterboxing/pillarboxing on very wide or unusually shaped screens (e.g. ultra-wide monitors or tablets). Given the time constraints of this assessment, this was a deliberate trade-off to avoid destabilizing carefully tuned difficulty values. With more time, I would migrate to `Phaser.Scale.RESIZE` combined with a clamped, percentage-anchored gameplay area (max ~720px wide, centered), so the UI fills the full viewport while gameplay balance remains untouched.
+
+**Object pooling:** Falling items use Phaser Group pooling with an `isCaught` flag to prevent items from being recycled mid-animation while their "caught" tween is still playing. This was specifically hardened against a race condition where a caught item could otherwise be reused before its catch animation finished, causing visual glitches.
+
+**Scene transitions:** Play/Play Again buttons are guarded with an `isTransitioning` flag and immediate `disableInteractive()` on click, preventing rapid double-clicks from queueing duplicate scene starts or corrupting game state.
+
+**Delta time safety:** Falling item movement clamps `delta` to a maximum of 33ms per frame to prevent "tunneling" — where a lag spike or backgrounded browser tab could otherwise cause an item to jump far enough in a single frame to skip past the basket's collision bounds entirely.
+
+**With more time, I would:**
+- Implement full `RESIZE`-based responsive scaling with dynamic UI anchoring instead of the current FIT/letterbox approach.
+- Add automated tests around the Spawner pooling logic and win/loss edge cases.
+- Add more visual/audio variety (combo streaks, difficulty-based music layering).
+- Add a settings menu (mute toggle, difficulty selection).
+- Add a pause/resume feature for mobile background/foreground transitions.
 
 ## Asset Attribution
 

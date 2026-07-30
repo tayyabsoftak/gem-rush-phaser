@@ -150,7 +150,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (this.timeRemaining <= 0) {
-      this.endGame(false);
+      this.endGame(false, 'timeout');
     }
   }
 
@@ -209,7 +209,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (this.score >= GameConfig.targetScore) {
-      this.endGame(true);
+      this.endGame(true, 'win');
     }
   }
 
@@ -233,11 +233,11 @@ export default class GameScene extends Phaser.Scene {
     });
 
     if (this.lives <= 0) {
-      this.endGame(false);
+      this.endGame(false, 'lives');
     }
   }
 
-  endGame(won) {
+  endGame(won, reason) {
     if (this.gameOver) return;
     this.gameOver = true;
 
@@ -252,7 +252,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.cameras.main.fadeOut(600, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('EndScene', { won, score: this.score });
+      this.scene.start('EndScene', { won, score: this.score, reason });
     });
   }
 }
