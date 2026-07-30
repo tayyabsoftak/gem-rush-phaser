@@ -15,6 +15,7 @@ Open `dist/index.html` in a browser after building — it runs fully offline wit
 
 ## Project Structure
 
+```text
 gem-rush-phaser/
 ├── index.html                  # HTML entry point
 ├── package.json                # Dependencies & npm scripts
@@ -51,6 +52,7 @@ gem-rush-phaser/
 │       └── HUD.js                # Score, lives, and timer display
 └── dist/
     └── index.html               # Final single-file production build
+```
 
 
 ## Controls
